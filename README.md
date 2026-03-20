@@ -37,7 +37,7 @@ No claim filing required.
 ## Application Workflow
 </br>
 
-<img width="415" height="1756" alt="Input Manuscript (1)" src="https://github.com/user-attachments/assets/a8541b4e-de03-49df-8967-9c7e27a12358" />
+<img width="250" height="500" alt="Input Manuscript (1)" src="https://github.com/user-attachments/assets/a8541b4e-de03-49df-8967-9c7e27a12358" />
 
 </br>
 </br>
