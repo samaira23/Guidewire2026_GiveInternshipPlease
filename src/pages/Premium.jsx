@@ -1,0 +1,29 @@
+import { useState } from "react";
+import Sidebar from "../components/layout/Sidebar";
+import PremiumCard from "../components/premium/PremiumCard";
+import PremiumChart from "../components/premium/PremiumChart";
+import RiskControls from "../components/premium/RiskControls";
+import Topbar from "../components/layout/Topbar";
+export default function Premium() {
+  const [premium, setPremium] = useState(1240);
+
+  return (
+    <div className="flex">
+      <Sidebar />
+
+      <div className="flex-1 p-6 bg-[#0f1117] min-h-screen">
+        <Topbar />
+        <h1 className="text-3xl font-bold mb-6">Premium Console</h1>
+
+        {/* TOP */}
+        <div className="grid grid-cols-2 gap-6 mb-6">
+          <PremiumCard premium={premium} />
+          <PremiumChart />
+        </div>
+
+        {/* BOTTOM */}
+        <RiskControls setPremium={setPremium} />
+      </div>
+    </div>
+  );
+}
