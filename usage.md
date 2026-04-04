@@ -1,4 +1,4 @@
-# SafetyNet App - Usage Guide
+# Indregis - Usage Guide
 
 This document outlines how to run, use, and test the SafetyNet Full-stack application.
 
