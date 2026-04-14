@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import Sidebar from "../components/layout/Sidebar";
 import PremiumCard from "../components/premium/PremiumCard";

@@ -1,3 +1,4 @@
+import React from 'react';
 import AdminSidebar from "../components/layout/AdminSidebar";
 import ClaimsChart from "../components/admin/ClaimsChart";
 import FraudAlerts from "../components/admin/FraudAlerts";

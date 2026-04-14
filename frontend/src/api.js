@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -10,7 +10,10 @@ const authHeaders = () => ({
 });
 
 const jsonFetch = async (url, options = {}) => {
-  const res = await fetch(`${BASE_URL}${url}`, options);
+  // Added a check to ensure BASE_URL doesn't end with a slash if url starts with one
+  const sanitizedUrl = url.startsWith('/') ? url : `/${url}`;
+  const res = await fetch(`${BASE_URL}${sanitizedUrl}`, options);
+  
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     throw err;
