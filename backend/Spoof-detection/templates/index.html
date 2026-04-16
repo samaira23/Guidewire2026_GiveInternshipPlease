@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GigGuard - Claim Verification</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 540px;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #e6edf3;
+      border-bottom: 1px solid #30363d;
+      padding-bottom: 0.85rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .section-label {
+      display: block;
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: #8b949e;
+      margin-bottom: 0.55rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .checkbox-row:hover { border-color: #58a6ff; }
+    .checkbox-row input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: #58a6ff;
+      cursor: pointer;
+    }
+    .checkbox-row span { font-size: 0.88rem; color: #c9d1d9; user-select: none; }
+
+    #verifyBtn {
+      width: 100%;
+      padding: 0.72rem 1rem;
+      background: #1f6feb;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    #verifyBtn:hover    { background: #388bfd; }
+    #verifyBtn:active   { background: #1158c7; }
+    #verifyBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #status {
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: #8b949e;
+      min-height: 1rem;
+    }
+
+    #vpn-block {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.75rem 0.9rem;
+      background: #2d0f0f;
+      border: 1px solid #f85149;
+      border-radius: 6px;
+      font-size: 0.83rem;
+      color: #ffa198;
+      line-height: 1.55;
+    }
+
+    /* Pipeline */
+    #pipeline {
+      display: none;
+      margin-top: 1.2rem;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .pipe-header {
+      background: #1c2128;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.71rem;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: #8b949e;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .pipe-step {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid #21262d;
+      font-size: 0.83rem;
+    }
+    .pipe-step:last-child { border-bottom: none; }
+
+    .step-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #58a6ff;
+      min-width: 20px;
+    }
+
+    .step-desc { color: #8b949e; flex: 1; }
+
+    .step-result {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-align: right;
+      min-width: 80px;
+    }
+    .step-result.pending  { color: #4d5566; }
+    .step-result.running  { color: #d29922; }
+    .step-result.pass     { color: #3fb950; }
+    .step-result.fail     { color: #f85149; }
+    .step-result.warn     { color: #d29922; }
+    .step-result.yes      { color: #3fb950; }
+    .step-result.no       { color: #8b949e; }
+    .step-result.skipped  { color: #4d5566; font-style: italic; font-weight: 400; }
+
+    /* Reasons list */
+    #reasons-block {
+      display: none;
+      margin-top: 1rem;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .reasons-header {
+      background: #1c2128;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: #8b949e;
+      border-bottom: 1px solid #30363d;
+    }
+    #reasons-list {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: #8b949e;
+    }
+    #reasons-list li { list-style: none; padding-left: 0.5rem; }
+    #reasons-list li::before { content: "- "; color: #4d5566; }
+
+    /* Verdict */
+    #verdict {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+    #verdict.approved { background: #0d2b1d; border: 1px solid #3fb950; color: #3fb950; }
+    #verdict.rejected { background: #2d0f0f; border: 1px solid #f85149; color: #f85149; }
+    #verdict.review   { background: #2b1d00; border: 1px solid #d29922; color: #d29922; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-title">GigGuard - Insurance Claim Verification</div>
+
+  <span class="section-label">Claim Reason (select all that apply)</span>
+  <div class="checkbox-group">
+    <label class="checkbox-row">
+      <input type="checkbox" id="claimAQ" />
+      <span>Poor air quality</span>
+    </label>
+    <label class="checkbox-row">
+      <input type="checkbox" id="claimWeather" />
+      <span>Unfavourable weather</span>
+    </label>
+  </div>
+
+  <button id="verifyBtn">Verify and Submit Claim</button>
+  <div id="status">Select a claim reason and click to begin.</div>
+
+  <div id="vpn-block">
+    VPN or proxy connection detected on your network.
+    Please disable it and retry. Claims submitted through a VPN are automatically rejected.
+  </div>
+
+  <!-- Pipeline -->
+  <div id="pipeline">
+    <div class="pipe-header">Verification Pipeline</div>
+
+    <div class="pipe-step">
+      <span class="step-num">1</span>
+      <span class="step-desc">GPS coordinates obtained</span>
+      <span class="step-result pending" id="s1">--</span>
+    </div>
+    <div class="pipe-step">
+      <span class="step-num">2</span>
+      <span class="step-desc">Public IP discovered</span>
+      <span class="step-result pending" id="s2">--</span>
+    </div>
+    <div class="pipe-step">
+      <span class="step-num">3</span>
+      <span class="step-desc">IP reputation scan (VPN / proxy)</span>
+      <span class="step-result pending" id="s3">--</span>
+    </div>
+    <div class="pipe-step">
+      <span class="step-num">4</span>
+      <span class="step-desc">Fraud score check</span>
+      <span class="step-result pending" id="s4">--</span>
+    </div>
+    <div class="pipe-step" id="step-aq">
+      <span class="step-num">5a</span>
+      <span class="step-desc">Air quality check</span>
+      <span class="step-result pending" id="s5a">--</span>
+    </div>
+    <div class="pipe-step" id="step-wx">
+      <span class="step-num">5b</span>
+      <span class="step-desc">Weather conditions check</span>
+      <span class="step-result pending" id="s5b">--</span>
+    </div>
+    <div class="pipe-step">
+      <span class="step-num">6</span>
+      <span class="step-desc">Claim decision</span>
+      <span class="step-result pending" id="s6">--</span>
+    </div>
+  </div>
+
+  <!-- Flag reasons -->
+  <div id="reasons-block">
+    <div class="reasons-header">Fraud Signals Detected</div>
+    <ul id="reasons-list"></ul>
+  </div>
+
+  <!-- Final verdict -->
+  <div id="verdict"></div>
+</div>
+
+<script>
+  const btn = document.getElementById('verifyBtn');
+
+  function setStatus(msg) { document.getElementById('status').textContent = msg; }
+
+  function setStep(id, text, cls) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className   = 'step-result ' + cls;
+  }
+
+  function showVerdict(text, cls) {
+    const el = document.getElementById('verdict');
+    el.textContent   = text;
+    el.className     = cls;
+    el.style.display = 'block';
+  }
+
+  function showReasons(reasons) {
+    if (!reasons || reasons.length === 0) return;
+    const block = document.getElementById('reasons-block');
+    const list  = document.getElementById('reasons-list');
+    list.innerHTML = '';
+    reasons.forEach(r => {
+      const li = document.createElement('li');
+      li.textContent = r;
+      list.appendChild(li);
+    });
+    block.style.display = 'block';
+  }
+
+  async function post(endpoint, body) {
+    const r = await fetch(endpoint, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    });
+    return r.json();
+  }
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+
+    // Reset UI
+    ['s1','s2','s3','s4','s5a','s5b','s6'].forEach(id => setStep(id, '--', 'pending'));
+    document.getElementById('vpn-block').style.display   = 'none';
+    document.getElementById('pipeline').style.display    = 'none';
+    document.getElementById('reasons-block').style.display = 'none';
+    document.getElementById('verdict').style.display     = 'none';
+
+    const wantAQ = document.getElementById('claimAQ').checked;
+    const wantWX = document.getElementById('claimWeather').checked;
+
+    if (!wantAQ && !wantWX) {
+      setStatus('Please select at least one claim reason.');
+      btn.disabled = false;
+      return;
+    }
+
+    document.getElementById('pipeline').style.display  = 'block';
+    document.getElementById('step-aq').style.display   = wantAQ ? '' : 'none';
+    document.getElementById('step-wx').style.display   = wantWX ? '' : 'none';
+    if (!wantAQ) setStep('s5a', 'not selected', 'skipped');
+    if (!wantWX) setStep('s5b', 'not selected', 'skipped');
+
+    // ── Step 1: GPS ─────────────────────────────────────────────────────────
+    setStatus('Requesting location permission...');
+    let lat, lon;
+    try {
+      const pos = await new Promise((res, rej) =>
+        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 10000 })
+      );
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+      setStep('s1', `${lat.toFixed(5)}, ${lon.toFixed(5)}`, 'pass');
+    } catch (e) {
+      setStep('s1', 'DENIED', 'fail');
+      setStatus('Location permission denied: ' + e.message);
+      showVerdict('Verification failed - location access required', 'rejected');
+      btn.disabled = false;
+      return;
+    }
+
+    // ── Step 2: Public IP (browser-side, for VPN popup) ─────────────────────
+    setStatus('Discovering public IP...');
+    let ip = 'unknown';
+    try {
+      const r = await fetch('https://api.ipify.org?format=json');
+      ip = (await r.json()).ip;
+      setStep('s2', ip, 'pass');
+    } catch (e) {
+      setStep('s2', 'unavailable', 'warn');
+    }
+
+    // ── Step 3: Quick browser-side proxy check (for immediate alert) ─────────
+    setStatus('Scanning IP reputation...');
+    try {
+      const r = await fetch(`https://ip-api.com/json/${ip}?fields=proxy,hosting`);
+      const d = await r.json();
+      if (d.proxy === true) {
+        setStep('s3', 'VPN DETECTED', 'fail');
+        document.getElementById('vpn-block').style.display = 'block';
+        alert('VPN / Proxy Detected\n\nPlease disable your VPN and try again.\nClaims through a VPN are automatically rejected.');
+        setStep('s4',  'skipped', 'skipped');
+        setStep('s5a', 'skipped', 'skipped');
+        setStep('s5b', 'skipped', 'skipped');
+        setStep('s6',  'REJECTED', 'fail');
+        showVerdict('CLAIM REJECTED - VPN / Proxy detected', 'rejected');
+        setStatus('Verification blocked.');
+        btn.disabled = false;
+        return;
+      }
+      setStep('s3', d.hosting ? 'Pass (datacenter IP)' : 'Pass', d.hosting ? 'warn' : 'pass');
+    } catch (e) {
+      setStep('s3', 'check failed', 'warn');
+    }
+
+    // ── Step 4: Fraud score via Flask ────────────────────────────────────────
+    setStatus('Running fraud check...');
+    setStep('s4', 'running...', 'running');
+    let score;
+    try {
+      const d = await post('/api/crosscheck', { lat, lon });
+      if (d.error) throw new Error(d.error);
+
+      score = d.score;
+      const cls = score <= 3 ? 'pass' : score <= 5 ? 'warn' : 'fail';
+      setStep('s4', `${score} / 10  (${d.band})`, cls);
+
+      if (d.reasons && d.reasons.length > 0) showReasons(d.reasons);
+
+      if (score >= 4) {
+        setStep('s5a', 'skipped - score too high', 'skipped');
+        setStep('s5b', 'skipped - score too high', 'skipped');
+        setStep('s6',  'REJECTED', 'fail');
+        showVerdict(`CLAIM REJECTED - Fraud score ${score}/10 (${d.band})`, 'rejected');
+        setStatus('Verification complete.');
+        btn.disabled = false;
+        return;
+      }
+    } catch (e) {
+      setStep('s4', 'ERROR', 'fail');
+      showVerdict('Fraud check failed: ' + e.message, 'rejected');
+      setStatus('Error during fraud check.');
+      btn.disabled = false;
+      return;
+    }
+
+    // ── Step 5a: Air quality ─────────────────────────────────────────────────
+    let aqResult = null;
+    if (wantAQ) {
+      setStatus('Checking air quality...');
+      setStep('s5a', 'running...', 'running');
+      try {
+        const d = await post('/api/air-quality', { lat, lon });
+        if (d.error) throw new Error(d.error);
+        aqResult = d.result;
+        setStep('s5a', aqResult.toUpperCase(), aqResult === 'yes' ? 'yes' : 'no');
+      } catch (e) {
+        setStep('s5a', 'ERROR', 'fail');
+        aqResult = 'error';
+      }
+    }
+
+    // ── Step 5b: Weather ─────────────────────────────────────────────────────
+    let wxResult = null;
+    if (wantWX) {
+      setStatus('Checking weather conditions...');
+      setStep('s5b', 'running...', 'running');
+      try {
+        const d = await post('/api/weather', { lat, lon });
+        if (d.error) throw new Error(d.error);
+        wxResult = d.result;
+        setStep('s5b', wxResult.toUpperCase(), wxResult === 'yes' ? 'yes' : 'no');
+      } catch (e) {
+        setStep('s5b', 'ERROR', 'fail');
+        wxResult = 'error';
+      }
+    }
+
+    // ── Step 6: Claim decision ───────────────────────────────────────────────
+    const anyYes = (aqResult === 'yes') || (wxResult === 'yes');
+
+    if (anyYes) {
+      setStep('s6', 'APPROVED', 'pass');
+      showVerdict('CLAIM APPROVED - Environmental conditions verified', 'approved');
+    } else if (aqResult === 'error' || wxResult === 'error') {
+      setStep('s6', 'REVIEW', 'warn');
+      showVerdict('REVIEW REQUIRED - One or more checks could not complete', 'review');
+    } else {
+      setStep('s6', 'NOT SUPPORTED', 'fail');
+      showVerdict('CLAIM NOT SUPPORTED - Current conditions do not meet criteria', 'rejected');
+    }
+
+    setStatus('Verification complete.');
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>
