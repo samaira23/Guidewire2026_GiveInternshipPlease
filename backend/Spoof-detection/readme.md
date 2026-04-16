@@ -9,7 +9,7 @@ Endpoints:
     POST /api/air-quality   -> {lat, lon} -> {result: "yes"/"no", ...}
     POST /api/weather       -> {lat, lon} -> {result: "yes"/"no", ...}
 
---------------------------------------------------------------------------------------------------
+
 
 Ip cross check:
 
@@ -33,7 +33,9 @@ Signal weights:
     +2   Claim frequency > 3 in rolling 24 h
     +3   Static / spoofed GPS (same spot 3+ times)
     +1   Off-hours submission (before 05:00 or after 23:00 UTC)
-    ---------------------------------------------------------------------------------------------------------------------------
+
+
+
 Air quality check :
 Permissible limits (WHO 2021 Air Quality Guidelines, 24-hour mean):
     AQI    >= 3 (Moderate / Poor / Very Poor)
@@ -44,7 +46,8 @@ Permissible limits (WHO 2021 Air Quality Guidelines, 24-hour mean):
     SO2    >= 40  ug/m3
     CO     >= 4000 ug/m3  (4 mg/m3)
 
-    --------------------------------------------------------------------------------------------
+
+
 Weather check:
    
   Unfavourable weather is declared when ANY of the following is true:
