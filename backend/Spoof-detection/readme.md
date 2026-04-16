@@ -1,4 +1,4 @@
-Pipeline : IP check (output is risk score)-> Pollution or weather (output is a yes or no)               
+Pipeline : IP check (output is risk score, if <4 it wont go ahead)-> Pollution or weather (output is a yes or no)               
 
 
 ! Remove ts after you integrate the button:
@@ -11,7 +11,7 @@ Endpoints:
 
 
 
-Ip cross check:
+##Ip cross check:
 
 OUTPUT  : A single integer 1-10 printed to stdout. That is the only thing
           written to stdout. All diagnostic detail goes to stderr.
@@ -36,7 +36,7 @@ Signal weights:
 
 
 
-Air quality check :
+##Air quality check :
 Permissible limits (WHO 2021 Air Quality Guidelines, 24-hour mean):
     AQI    >= 3 (Moderate / Poor / Very Poor)
     PM2.5  >= 25  ug/m3
@@ -48,7 +48,7 @@ Permissible limits (WHO 2021 Air Quality Guidelines, 24-hour mean):
 
 
 
-Weather check:
+##Weather check:
    
   Unfavourable weather is declared when ANY of the following is true:
     - Precipitation group: Thunderstorm / Drizzle / Rain / Snow
