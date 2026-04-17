@@ -7,6 +7,7 @@ import { sendOtp } from "../api";
 export default function Login({ setRole }) {
   const [phone, setPhone] = useState("");
   const [role, setLocalRole] = useState("worker");
+  const [demoMode, setDemoMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function Login({ setRole }) {
       // Store phone and demo OTP for the OTP page
       localStorage.setItem("phone", phone);
       localStorage.setItem("demoOtp", data.otp || "");
+      localStorage.setItem("demoMode", demoMode);
       setRole(role);
       navigate("/otp");
     } catch (err) {
@@ -93,6 +95,17 @@ export default function Login({ setRole }) {
           {error && (
             <p className="text-red-400 text-sm mb-3">{error}</p>
           )}
+
+          {/* DEMO MODE TOGGLE */}
+          <div className="flex items-center gap-2 mb-4">
+            <input 
+              type="checkbox" 
+              checked={demoMode} 
+              onChange={(e) => setDemoMode(e.target.checked)}
+              className="w-4 h-4 accent-blue-500"
+            />
+            <span className="text-sm text-gray-400">Enable Demo Mode (Bypass verification checks)</span>
+          </div>
 
           {/* BUTTON */}
           <button

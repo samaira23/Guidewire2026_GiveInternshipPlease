@@ -8,6 +8,11 @@ from rest_framework.authtoken.models import Token
 from .models import Worker, Policy, Claim, AlertMessage, ActivityEvent, PremiumHistory, RiskZone
 
 
+from django.shortcuts import render
+from . import crosscheck_ip
+from . import air_quality_check
+from . import weather_check
+
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _seed_worker_data(worker):
@@ -215,11 +220,21 @@ def claim_detail(request, pk):
             'status': claim.status,
         })
 
-    # PATCH — update status
+    # PATCH — update status and/or dispute_reason
     new_status = request.data.get('status')
+    dispute_reason = request.data.get('dispute_reason')
+    
+    update_fields = []
     if new_status and new_status in dict(Claim.STATUS_CHOICES):
         claim.status = new_status
-        claim.save(update_fields=['status'])
+        update_fields.append('status')
+    
+    if dispute_reason:
+        claim.dispute_reason = dispute_reason
+        update_fields.append('dispute_reason')
+        
+    if update_fields:
+        claim.save(update_fields=update_fields)
     return Response({'id': claim.id, 'status': claim.status})
 
 
@@ -333,3 +348,136 @@ def admin_dashboard(request):
             '✔ Worker safety score updated',
         ],
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_disputes(request):
+    try:
+        worker = request.user.worker
+    except Exception:
+        return Response({'error': 'Worker profile not found'}, status=403)
+
+    if worker.role != 'admin':
+        return Response({'error': 'Admin access required'}, status=403)
+
+    disputed_claims = Claim.objects.filter(status='Disputed').order_by('-created_at')
+    return Response([
+        {
+            'id': c.id,
+            'reason': c.reason,
+            'payout_amount': float(c.payout_amount),
+            'dispute_reason': c.dispute_reason,
+            'worker_name': c.worker.name,
+            'worker_phone': c.worker.phone,
+            'created_at': c.created_at.isoformat(),
+        } for c in disputed_claims
+    ])
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def admin_resolve_dispute(request, pk):
+    try:
+        worker = request.user.worker
+    except Exception:
+        return Response({'error': 'Worker profile not found'}, status=403)
+
+    if worker.role != 'admin':
+        return Response({'error': 'Admin access required'}, status=403)
+
+    try:
+        claim = Claim.objects.get(pk=pk, status='Disputed')
+    except Claim.DoesNotExist:
+        return Response({'error': 'Disputed claim not found'}, status=404)
+
+    action = request.data.get('action') # 'accept' or 'reject'
+    admin_response = request.data.get('admin_response', '')
+    checkout_amount = request.data.get('checkout_amount')
+
+    if action == 'accept':
+        claim.status = 'Approved'
+        claim.admin_response = admin_response
+        if checkout_amount:
+            claim.checkout_amount = float(checkout_amount)
+            claim.payout_amount = float(checkout_amount)
+    elif action == 'reject':
+        claim.status = 'Rejected'
+        claim.admin_response = admin_response
+
+    claim.save(update_fields=['status', 'admin_response', 'checkout_amount', 'payout_amount'])
+    
+    # Add activity event
+    ActivityEvent.objects.create(
+        description=f"Dispute for claim #{claim.id} {action}ed."
+    )
+
+    return Response({'success': True, 'status': claim.status, 'checkout_amount': claim.checkout_amount})
+
+
+# ── Spoof-detection endpoints ─────────────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def spoof_index(request):
+    from django.shortcuts import render
+    return render(request, "index.html")
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_crosscheck(request):
+    try:
+        lat = float(request.data.get("lat"))
+        lon = float(request.data.get("lon"))
+    except (KeyError, TypeError, ValueError):
+        return Response({"error": "lat and lon are required numeric fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        result = crosscheck_ip.compute_score(lat, lon)
+        return Response({
+            "score":   result["fraud_score"],
+            "band":    result["band"],
+            "reasons": result["reasons"],
+            "ip":      result.get("ip", "unknown"),
+        })
+    except SystemExit:
+        return Response({"error": "IP discovery failed — check network connection"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_air_quality(request):
+    try:
+        lat = float(request.data.get("lat"))
+        lon = float(request.data.get("lon"))
+    except (KeyError, TypeError, ValueError):
+        return Response({"error": "lat and lon are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        answer = air_quality_check.run(lat, lon)
+        return Response({"result": answer})
+    except SystemExit:
+        return Response({"error": "OWM_API_KEY missing or invalid — check .env"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_weather(request):
+    try:
+        lat = float(request.data.get("lat"))
+        lon = float(request.data.get("lon"))
+    except (KeyError, TypeError, ValueError):
+        return Response({"error": "lat and lon are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        answer = weather_check.run(lat, lon)
+        return Response({"result": answer})
+    except SystemExit:
+        return Response({"error": "OWM_API_KEY missing or invalid — check .env"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

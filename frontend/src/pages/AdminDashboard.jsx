@@ -4,6 +4,7 @@ import ClaimsChart from "../components/admin/ClaimsChart";
 import FraudAlerts from "../components/admin/FraudAlerts";
 import RiskHeatmap from "../components/admin/RiskHeatmap";
 import ActivityFeed from "../components/admin/ActivityFeed";
+import DisputesPanel from "../components/admin/DisputesPanel";
 import { useState, useEffect } from "react";
 import { getAdminDashboard } from "../api";
 
@@ -28,6 +29,9 @@ export default function AdminDashboard() {
           <FraudAlerts alerts={data?.fraud_alerts} />
           <ClaimsChart chartData={data?.claims_chart} />
         </div>
+
+        {/* DISPUTES PANEL */}
+        <DisputesPanel />
 
         {/* SECOND GRID */}
         <div className="grid grid-cols-2 gap-6">

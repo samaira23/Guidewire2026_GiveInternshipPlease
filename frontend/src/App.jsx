@@ -7,6 +7,8 @@ import OTPVerification from "./pages/OTPVerification";
 import Dashboard from "./pages/Dashboard";
 import Premium from "./pages/Premium";
 import Claims from "./pages/Claims";
+import SpoofDetection from "./pages/SpoofDetection";
+import PayoutCalculation from "./pages/PayoutCalculation";
 import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
@@ -47,6 +49,14 @@ function App() {
         <Route
           path="/claims"
           element={isVerified && role === "worker" ? <Claims /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/claims/verify"
+          element={isVerified && role === "worker" ? <SpoofDetection /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/claims/payout"
+          element={isVerified && role === "worker" ? <PayoutCalculation /> : <Navigate to="/" />}
         />
 
         {/* ADMIN PROTECTED ROUTE */}

@@ -59,6 +59,8 @@ class Claim(models.Model):
         ('Processing', 'Processing'),
         ('Approved', 'Approved'),
         ('Paid', 'Paid'),
+        ('Disputed', 'Disputed'),
+        ('Rejected', 'Rejected'),
     ]
 
     worker = models.ForeignKey(Worker, on_delete=models.CASCADE, related_name='claims')
@@ -66,6 +68,10 @@ class Claim(models.Model):
     duration_hours = models.IntegerField(default=3)
     payout_amount = models.DecimalField(max_digits=8, decimal_places=2, default=120)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Submitted')
+    
+    dispute_reason = models.TextField(blank=True, null=True)
+    admin_response = models.TextField(blank=True, null=True)
+    checkout_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

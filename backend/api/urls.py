@@ -20,4 +20,12 @@ urlpatterns = [
 
     # Admin
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/disputes/', views.admin_disputes, name='admin_disputes'),
+    path('admin/disputes/<int:pk>/resolve/', views.admin_resolve_dispute, name='admin_resolve_dispute'),
+
+    # Spoof-detection
+    path('crosscheck/', views.api_crosscheck, name='api_crosscheck'),
+    path('air-quality/', views.api_air_quality, name='api_air_quality'),
+    path('weather/', views.api_weather, name='api_weather'),
+    path('', views.spoof_index, name='spoof_index'),
 ]
