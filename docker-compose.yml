@@ -30,4 +30,4 @@ services:
       - /app/node_modules
     depends_on:
       - backend
-    command: npm run dev -- --host
+    command: sh -c "npm install && npm run dev -- --host"
