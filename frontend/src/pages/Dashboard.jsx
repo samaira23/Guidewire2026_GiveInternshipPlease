@@ -15,6 +15,7 @@ import ConfidenceScore from "../components/dashboard/ConfidenceScore";
 import ExplainAI from "../components/dashboard/ExplainAI";
 import EarningsCard from "../components/dashboard/EarningsCard";
 import WeeklyCoverage from "../components/dashboard/WeeklyCoverage";
+import PlanPurchaseCard from "../components/dashboard/PlanPurchaseCard";
 import { getDashboard } from "../api";
 
 export default function Dashboard() {
@@ -80,6 +81,8 @@ export default function Dashboard() {
         >
           {loading ? "Simulating..." : "🌧 Simulate Rain Disruption"}
         </button>
+
+        <PlanPurchaseCard />
       </div>
     </div>
   );

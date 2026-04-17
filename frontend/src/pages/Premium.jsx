@@ -4,6 +4,7 @@ import Sidebar from "../components/layout/Sidebar";
 import PremiumCard from "../components/premium/PremiumCard";
 import PremiumChart from "../components/premium/PremiumChart";
 import RiskControls from "../components/premium/RiskControls";
+import PlanPurchaseCard from "../components/dashboard/PlanPurchaseCard";
 import Topbar from "../components/layout/Topbar";
 import { getPremium } from "../api";
 
@@ -36,6 +37,7 @@ export default function Premium() {
 
         {/* BOTTOM */}
         <RiskControls setPremium={setPremium} setHistory={setHistory} />
+        <PlanPurchaseCard />
       </div>
     </div>
   );

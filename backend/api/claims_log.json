@@ -76,5 +76,27 @@
     "reasons": [
       "Claim frequency 3 in 24h (+2)"
     ]
+  },
+  {
+    "timestamp": "2026-04-17T18:19:19.496597+00:00",
+    "ip": "122.175.19.209",
+    "ip_data": {
+      "city": "Hyderabad",
+      "district": "",
+      "lat": 17.3843,
+      "lon": 78.4583,
+      "proxy": false,
+      "hosting": false
+    },
+    "browser_coords": {
+      "lat": 12.822152,
+      "lon": 80.043598
+    },
+    "fraud_score": 5,
+    "band": "Medium risk - supervisor review",
+    "reasons": [
+      "IP-geo vs GPS mismatch 4.562 deg (+3)",
+      "Claim frequency 4 in 24h (+2)"
+    ]
   }
 ]

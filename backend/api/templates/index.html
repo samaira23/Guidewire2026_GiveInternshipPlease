@@ -207,16 +207,20 @@
 <div class="card">
   <div class="card-title">SafetyNet - Insurance Claim Verification</div>
 
-  <span class="section-label">Claim Reason (select all that apply)</span>
+  <span class="section-label">Claim Reason (select one)</span>
   <div class="checkbox-group">
     <label class="checkbox-row">
       <input type="checkbox" id="claimAQ" />
-      <span>Poor air quality</span>
+      <span>Poor air quality / pollution</span>
     </label>
     <label class="checkbox-row">
       <input type="checkbox" id="claimWeather" />
       <span>Unfavourable weather</span>
     </label>
+  </div>
+
+  <div style="color:#8b949e;font-size:0.78rem;margin-top:-0.65rem;margin-bottom:1rem;">
+    Choose one factor only before you start the claim.
   </div>
 
   <button id="verifyBtn">Verify and Submit Claim</button>
@@ -283,6 +287,16 @@
 
   function setStatus(msg) { document.getElementById('status').textContent = msg; }
 
+  function selectAQ(checked) {
+    document.getElementById('claimAQ').checked = checked;
+    if (checked) document.getElementById('claimWeather').checked = false;
+  }
+
+  function selectWeather(checked) {
+    document.getElementById('claimWeather').checked = checked;
+    if (checked) document.getElementById('claimAQ').checked = false;
+  }
+
   function setStep(id, text, cls) {
     const el = document.getElementById(id);
     el.textContent = text;
@@ -309,6 +323,9 @@
     block.style.display = 'block';
   }
 
+  document.getElementById('claimAQ').addEventListener('change', (e) => selectAQ(e.target.checked));
+  document.getElementById('claimWeather').addEventListener('change', (e) => selectWeather(e.target.checked));
+
   async function post(endpoint, body) {
     const r = await fetch(endpoint, {
       method:  'POST',
@@ -331,8 +348,8 @@
     const wantAQ = document.getElementById('claimAQ').checked;
     const wantWX = document.getElementById('claimWeather').checked;
 
-    if (!wantAQ && !wantWX) {
-      setStatus('Please select at least one claim reason.');
+    if ((wantAQ ? 1 : 0) + (wantWX ? 1 : 0) !== 1) {
+      setStatus('Please select either pollution or weather before starting the claim.');
       btn.disabled = false;
       return;
     }

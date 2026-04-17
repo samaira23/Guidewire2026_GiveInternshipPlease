@@ -85,7 +85,9 @@ export const createRazorpayOrder = (amount) =>
   jsonFetch('/api/payout/razorpay-order/', {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ amount }),
+    body: JSON.stringify(
+      typeof amount === 'object' && amount !== null ? amount : { amount },
+    ),
   });
 
 // ── Admin ──────────────────────────────────────────────────────────────────────

@@ -346,9 +346,15 @@ def calculate_payout(request):
 @permission_classes([IsAuthenticated])
 def payout_razorpay_order(request):
     try:
-        amount = float(request.data.get('amount', 0))
+        payload = request.data if isinstance(request.data, dict) else {}
+        amount_value = payload.get('amount', 0)
+        amount = float(amount_value)
     except ValueError:
         return Response({'error': 'Invalid amount'}, status=400)
+
+    purpose = request.data.get('purpose', 'payout')
+    plan_name = request.data.get('plan_name', '')
+    autopay = bool(request.data.get('autopay', False))
 
     # Razorpay expects amount in paise (1 INR = 100 paise)
     amount_in_paise = int(amount * 100)
@@ -371,7 +377,10 @@ def payout_razorpay_order(request):
             'order_id': order['id'],
             'amount': order_data['amount'],
             'currency': order_data['currency'],
-            'razorpay_key_id': razorpay_key_id
+            'razorpay_key_id': razorpay_key_id,
+            'purpose': purpose,
+            'plan_name': plan_name,
+            'autopay': autopay,
         })
     except Exception as e:
         print("[RAZORPAY ERROR]", e)
@@ -382,6 +391,9 @@ def payout_razorpay_order(request):
             'amount': amount_in_paise,
             'currency': 'INR',
             'razorpay_key_id': razorpay_key_id,
+            'purpose': purpose,
+            'plan_name': plan_name,
+            'autopay': autopay,
             'mocked': True
         })
 
@@ -464,6 +476,7 @@ def admin_disputes(request):
             'id': c.id,
             'reason': c.reason,
             'payout_amount': float(c.payout_amount),
+            'amount_paid': float(c.checkout_amount or c.payout_amount),
             'dispute_reason': c.dispute_reason,
             'worker_name': c.worker.name,
             'worker_phone': c.worker.phone,
@@ -505,11 +518,12 @@ def admin_resolve_dispute(request, pk):
     claim.save(update_fields=['status', 'admin_response', 'checkout_amount', 'payout_amount'])
     
     # Add activity event
+    paid_amount = float(claim.checkout_amount or claim.payout_amount)
     ActivityEvent.objects.create(
-        description=f"Dispute for claim #{claim.id} {action}ed."
+        description=f"Dispute for claim #{claim.id} {action}ed for ₹{paid_amount:.2f}."
     )
 
-    return Response({'success': True, 'status': claim.status, 'checkout_amount': claim.checkout_amount})
+    return Response({'success': True, 'status': claim.status, 'checkout_amount': claim.checkout_amount, 'amount_paid': paid_amount})
 
 
 # ── Spoof-detection endpoints ─────────────────────────────────────────────────

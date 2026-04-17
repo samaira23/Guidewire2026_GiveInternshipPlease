@@ -5,8 +5,8 @@ import Topbar from '../components/layout/Topbar';
 
 export default function SpoofDetection() {
   const navigate = useNavigate();
-  const [wantAQ, setWantAQ] = useState(true);
-  const [wantWX, setWantWX] = useState(true);
+  const [wantAQ, setWantAQ] = useState(false);
+  const [wantWX, setWantWX] = useState(false);
   
   const [statusMsg, setStatusMsg] = useState('Select a claim reason and click to begin.');
   const [running, setRunning] = useState(false);
@@ -28,6 +28,16 @@ export default function SpoofDetection() {
     setSteps(prev => ({ ...prev, [key]: { text, status } }));
   };
 
+  const selectAQ = (checked) => {
+    setWantAQ(checked);
+    if (checked) setWantWX(false);
+  };
+
+  const selectWX = (checked) => {
+    setWantWX(checked);
+    if (checked) setWantAQ(false);
+  };
+
   const getStatusColor = (status) => {
     switch(status) {
       case 'pass': return 'text-green-400 font-mono';
@@ -46,8 +56,8 @@ export default function SpoofDetection() {
     setVerdict(null);
     Object.keys(steps).forEach(k => updateStep(k, '--', 'pending'));
 
-    if (!wantAQ && !wantWX) {
-      setStatusMsg('Please select at least one claim reason.');
+    if ((wantAQ ? 1 : 0) + (wantWX ? 1 : 0) !== 1) {
+      setStatusMsg('Please select either pollution or weather before starting the claim.');
       setRunning(false);
       return;
     }
@@ -253,14 +263,15 @@ export default function SpoofDetection() {
             <span className="block text-xs uppercase tracking-wider text-gray-400 mb-2">Claim Reason</span>
             
             <label className="flex items-center gap-3 p-3 border border-[#30363d] rounded-md mb-2 cursor-pointer hover:border-blue-500">
-              <input type="checkbox" checked={wantAQ} onChange={e => setWantAQ(e.target.checked)} className="w-4 h-4 accent-blue-500" />
-              <span className="text-sm">Poor air quality</span>
+              <input type="checkbox" checked={wantAQ} onChange={e => selectAQ(e.target.checked)} className="w-4 h-4 accent-blue-500" />
+              <span className="text-sm">Poor air quality / pollution</span>
             </label>
             
             <label className="flex items-center gap-3 p-3 border border-[#30363d] rounded-md cursor-pointer hover:border-blue-500">
-              <input type="checkbox" checked={wantWX} onChange={e => setWantWX(e.target.checked)} className="w-4 h-4 accent-blue-500" />
+              <input type="checkbox" checked={wantWX} onChange={e => selectWX(e.target.checked)} className="w-4 h-4 accent-blue-500" />
               <span className="text-sm">Unfavourable weather</span>
             </label>
+            <p className="mt-2 text-xs text-gray-500">Choose one factor only before you start the claim.</p>
           </div>
 
           <button 

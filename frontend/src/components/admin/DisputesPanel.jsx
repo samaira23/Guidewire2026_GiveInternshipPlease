@@ -140,9 +140,14 @@ export default function DisputesPanel() {
                   <p className="text-gray-400 text-xs">Phone: {d.worker_phone} | Date: {new Date(d.created_at).toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                  <span className="block text-gray-400 text-xs uppercase tracking-wider">Suggested Payout</span>
-                  <span className="font-bold text-blue-400">₹{d.payout_amount}</span>
+                  <span className="block text-gray-400 text-xs uppercase tracking-wider">Final Paid</span>
+                  <span className="font-bold text-blue-400">₹{d.amount_paid ?? d.payout_amount}</span>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                <span>Suggested payout: ₹{d.payout_amount}</span>
+                <span>Amount paid after dispute: ₹{d.amount_paid ?? d.payout_amount}</span>
               </div>
 
               <div className="p-3 bg-[#111318] rounded-md border border-[#30363d] my-3">
