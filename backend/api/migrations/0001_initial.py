@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
             name='Policy',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='WorkerShield Gold', max_length=100)),
+                ('name', models.CharField(default='SafetyNet Gold', max_length=100)),
                 ('policy_id', models.CharField(default='SN-9920-X', max_length=50)),
                 ('coverage_amount', models.DecimalField(decimal_places=2, default=500000, max_digits=12)),
                 ('daily_premium', models.DecimalField(decimal_places=2, default=14, max_digits=8)),

@@ -136,7 +136,7 @@ def worker_dashboard(request):
         'risk_level': worker.risk_level,
         'earnings_protected': float(worker.earnings_protected),
         'policy': {
-            'name': policy.name if policy else 'WorkerShield Gold',
+            'name': policy.name if policy else 'SafetyNet Gold',
             'policy_id': policy.policy_id if policy else 'SN-9920-X',
             'coverage_amount': float(policy.coverage_amount) if policy else 500000,
             'daily_premium': float(policy.daily_premium) if policy else 14,

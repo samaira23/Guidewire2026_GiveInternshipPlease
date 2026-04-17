@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 export default function PolicyCard({ policy }) {
-  const name = policy?.name || 'WorkerShield Gold';
+  const name = policy?.name || 'SafetyNet Gold';
   const policyId = policy?.policy_id || 'SN-9920-X';
   const coverage = policy?.coverage_amount ?? 500000;
   const dailyPremium = policy?.daily_premium ?? 14;

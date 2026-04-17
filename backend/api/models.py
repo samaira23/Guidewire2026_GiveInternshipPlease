@@ -44,7 +44,7 @@ class Worker(models.Model):
 
 class Policy(models.Model):
     worker = models.OneToOneField(Worker, on_delete=models.CASCADE, related_name='policy')
-    name = models.CharField(max_length=100, default='WorkerShield Gold')
+    name = models.CharField(max_length=100, default='SafetyNet Gold')
     policy_id = models.CharField(max_length=50, default='SN-9920-X')
     coverage_amount = models.DecimalField(max_digits=12, decimal_places=2, default=500000)
     daily_premium = models.DecimalField(max_digits=8, decimal_places=2, default=14)

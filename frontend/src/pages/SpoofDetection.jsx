@@ -246,7 +246,7 @@ export default function SpoofDetection() {
         
         <div className="max-w-2xl mx-auto bg-[#161b22] border border-[#30363d] rounded-xl p-6 mt-6">
           <h2 className="text-xl font-semibold border-b border-[#30363d] pb-3 mb-4">
-            GigGuard - Verification Pipeline
+            SafetyNet - Verification Pipeline
           </h2>
 
           <div className="mb-6">
