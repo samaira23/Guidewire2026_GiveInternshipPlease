@@ -228,4 +228,4 @@ Admin Dashboard
 
 
 ## Pitchdeck
-* https://drive.google.com/file/d/10dG-1kURBF9u9C6z8Ju5dNVTa7a24-jA/view?usp=sharing
+* https://drive.google.com/file/d/1evkW2ZhXq8QlMRTbKzEBEEiNtwVTBNWE/view?usp=sharing
