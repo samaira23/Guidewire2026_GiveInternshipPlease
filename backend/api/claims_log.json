@@ -76,5 +76,71 @@
     "reasons": [
       "Claim frequency 3 in 24h (+2)"
     ]
+  },
+  {
+    "timestamp": "2026-04-17T17:14:31.669511+00:00",
+    "ip": "103.98.62.38",
+    "ip_data": {
+      "city": "Chennai",
+      "district": "",
+      "lat": 13.0895,
+      "lon": 80.2739,
+      "proxy": false,
+      "hosting": false
+    },
+    "browser_coords": {
+      "lat": 12.959155740792738,
+      "lon": 80.17176726325519
+    },
+    "fraud_score": 5,
+    "band": "Medium risk - supervisor review",
+    "reasons": [
+      "Claim frequency 4 in 24h (+2)",
+      "Static GPS across 5 checks (+3)"
+    ]
+  },
+  {
+    "timestamp": "2026-04-17T17:14:41.609729+00:00",
+    "ip": "103.98.62.38",
+    "ip_data": {
+      "city": "Chennai",
+      "district": "",
+      "lat": 13.0895,
+      "lon": 80.2739,
+      "proxy": false,
+      "hosting": false
+    },
+    "browser_coords": {
+      "lat": 12.959155740792738,
+      "lon": 80.17176726325519
+    },
+    "fraud_score": 5,
+    "band": "Medium risk - supervisor review",
+    "reasons": [
+      "Claim frequency 5 in 24h (+2)",
+      "Static GPS across 5 checks (+3)"
+    ]
+  },
+  {
+    "timestamp": "2026-04-17T17:14:46.640876+00:00",
+    "ip": "103.98.62.38",
+    "ip_data": {
+      "city": "Chennai",
+      "district": "",
+      "lat": 13.0895,
+      "lon": 80.2739,
+      "proxy": false,
+      "hosting": false
+    },
+    "browser_coords": {
+      "lat": 12.959155740792738,
+      "lon": 80.17176726325519
+    },
+    "fraud_score": 5,
+    "band": "Medium risk - supervisor review",
+    "reasons": [
+      "Claim frequency 6 in 24h (+2)",
+      "Static GPS across 5 checks (+3)"
+    ]
   }
 ]
