@@ -12,9 +12,17 @@ export default function AdminDashboard() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    getAdminDashboard()
-      .then(setData)
-      .catch((err) => console.error("Admin dashboard fetch failed:", err));
+    const fetchData = () => {
+      getAdminDashboard()
+        .then(setData)
+        .catch((err) => console.error("Admin dashboard fetch failed:", err));
+    };
+
+    fetchData(); // Fetch immediately
+
+    // Poll every 5 seconds for real-time tracking
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
   }, []);
 
   return (

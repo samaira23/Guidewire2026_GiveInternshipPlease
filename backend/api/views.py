@@ -13,6 +13,9 @@ from . import crosscheck_ip
 from . import air_quality_check
 from . import weather_check
 
+import razorpay
+import os
+
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _seed_worker_data(worker):
@@ -296,6 +299,93 @@ def calculate_premium(request):
     })
 
 
+# ── Payouts (Razorpay) ─────────────────────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def calculate_payout(request):
+    worker = request.user.worker
+    # Dynamic Pricing Engine:
+    # We fetch the last premium amount or use base 500
+    history = list(worker.premium_history.values('amount').order_by('id'))
+    last_premium = float(history[-1]['amount']) if history else 1200
+    
+    # Calculate base payout proportional to premium
+    base_payout = round(last_premium * 0.4)
+    
+    # Check recent claims or activities for hazards
+    recent_claims = worker.claims.order_by('-created_at')[:3]
+    recent_activities = worker.activities.order_by('-created_at')[:5]
+    
+    hazard_bonus = 0
+    estimated_miles_bonus = 35
+    
+    for act in recent_activities:
+        if 'Rain' in act.description or 'risk increased' in act.description:
+            hazard_bonus += 60
+            
+    for claim in recent_claims:
+        if claim.duration_hours and claim.duration_hours >= 3:
+            hazard_bonus += 30
+
+    # Ensure some minimum hazard bonus for demonstration
+    if hazard_bonus == 0:
+        hazard_bonus = 120
+        
+    total_payout = base_payout + hazard_bonus + estimated_miles_bonus
+    
+    return Response({
+        'basePayout': base_payout,
+        'hazardBonus': hazard_bonus,
+        'estimatedMilesBonus': estimated_miles_bonus,
+        'totalPayout': total_payout
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def payout_razorpay_order(request):
+    try:
+        amount = float(request.data.get('amount', 0))
+    except ValueError:
+        return Response({'error': 'Invalid amount'}, status=400)
+
+    # Razorpay expects amount in paise (1 INR = 100 paise)
+    amount_in_paise = int(amount * 100)
+
+    # Initialize Razorpay Client
+    razorpay_key_id = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_mocked_key')
+    razorpay_key_secret = os.environ.get('RAZORPAY_KEY_SECRET', 'mocked_secret')
+    
+    try:
+        client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
+        
+        order_data = {
+            'amount': amount_in_paise,
+            'currency': 'INR',
+            'payment_capture': 1 # auto capture
+        }
+        order = client.order.create(data=order_data)
+        
+        return Response({
+            'order_id': order['id'],
+            'amount': order_data['amount'],
+            'currency': order_data['currency'],
+            'razorpay_key_id': razorpay_key_id
+        })
+    except Exception as e:
+        print("[RAZORPAY ERROR]", e)
+        # Fallback for testing when Razorpay credentials aren't properly set up
+        # We mock the order ID structure to test frontend flow without real APIs
+        return Response({
+            'order_id': 'order_dummy_' + str(amount_in_paise),
+            'amount': amount_in_paise,
+            'currency': 'INR',
+            'razorpay_key_id': razorpay_key_id,
+            'mocked': True
+        })
+
+
 # ── Admin Dashboard ────────────────────────────────────────────────────────────
 
 @api_view(['GET'])
@@ -328,14 +418,21 @@ def admin_dashboard(request):
 
     risk_zones = RiskZone.objects.all()
     activities = ActivityEvent.objects.filter(worker__isnull=True).order_by('-created_at')[:6]
-
-    return Response({
-        'claims_chart': claims_chart,
-        'fraud_alerts': [
+    
+    # Load dynamic fraud alerts
+    real_alerts = AlertMessage.objects.filter(alert_type='fraud').order_by('-created_at')[:5]
+    if real_alerts.exists():
+        fraud_alerts = [a.message for a in real_alerts]
+    else:
+        fraud_alerts = [
             '⚠ Multiple claims from same IP',
             '⚠ Unusual claim frequency detected',
             '⚠ Location mismatch anomaly',
-        ],
+        ]
+
+    return Response({
+        'claims_chart': claims_chart,
+        'fraud_alerts': fraud_alerts,
         'risk_zones': [
             {'name': z.name, 'risk': z.risk} for z in risk_zones
         ],

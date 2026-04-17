@@ -200,6 +200,15 @@ def compute_score(browser_lat: float, browser_lon: float) -> dict:
     }
     append_claim_log(record)
 
+    # dynamically update admin dashboard by creating AlertMessage records
+    if score >= 3:
+        try:
+            from .models import AlertMessage
+            alert_msg = f"⚠ FRAUD ALERT (Score: {score}): " + ', '.join(reasons)
+            AlertMessage.objects.create(message=alert_msg, alert_type="fraud")
+        except Exception as e:
+            print(f"[WARN] Failed to create AlertMessage: {e}", file=sys.stderr)
+
     print(f"[RESULT] score={score}  band={band_label(score)}", file=sys.stderr)
     print(f"[RESULT] reasons={reasons}", file=sys.stderr)
 

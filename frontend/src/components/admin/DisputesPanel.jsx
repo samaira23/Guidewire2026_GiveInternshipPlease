@@ -1,4 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { createRazorpayOrder } from '../../api';
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function DisputesPanel() {
   const [disputes, setDisputes] = useState([]);
@@ -28,7 +39,7 @@ export default function DisputesPanel() {
     fetchDisputes();
   }, []);
 
-  const handleResolve = async (id, action) => {
+  const resolveClaimBackend = async (id, action) => {
     try {
       await fetch(`http://localhost:8000/api/admin/disputes/${id}/resolve/`, {
         method: 'POST',
@@ -51,6 +62,57 @@ export default function DisputesPanel() {
     }
   };
 
+  const handleResolve = async (id, action) => {
+    if (action === 'accept') {
+      try {
+        const orderRes = await createRazorpayOrder(checkoutAmount);
+        if (!orderRes || !orderRes.order_id) {
+          alert('Failed to generate Razorpay Payment Order');
+          return;
+        }
+
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          alert('Could not load Razorpay Script. Check your connection.');
+          return;
+        }
+
+        const options = {
+          key: orderRes.razorpay_key_id,
+          amount: orderRes.amount,
+          currency: orderRes.currency,
+          name: "SafetyNet Admin Payout",
+          description: "Admin Initiated Claim Dispute Payout",
+          order_id: orderRes.order_id,
+          handler: async function (response) {
+            // Only update DB on success
+            await resolveClaimBackend(id, action);
+            alert(`Payment dispatched! Transaction ID: ${response.razorpay_payment_id || 'test_tx'}`);
+          },
+          prefill: {
+            name: "Admin User",
+            email: "admin@example.com"
+          },
+          theme: {
+            color: "#1a1d24"
+          }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (res) {
+          alert(`Payment failed: ${res.error.description}`);
+        });
+        rzp.open();
+      } catch (err) {
+        console.error("Payment integration error:", err);
+        alert("Failed to initiate checkout via Razorpay");
+      }
+    } else {
+      // Reject action or others don't require checkout
+      await resolveClaimBackend(id, action);
+    }
+  };
+
   const openResolver = (d) => {
     setResolveState(d.id);
     setCheckoutAmount(d.payout_amount.toString());
@@ -63,10 +125,10 @@ export default function DisputesPanel() {
     <div className="bg-[#1a1d24] border border-[#2a2f3a] rounded-xl overflow-hidden mt-6">
       <div className="bg-[#1c2128] px-4 py-3 border-b border-[#30363d] flex justify-between items-center">
         <h3 className="font-semibold text-gray-300">Raised Disputes</h3>
-        <span className="bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded text-xs px-2">{disputes.length} pending</span>
+        <span className="bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded text-xs">{(disputes && disputes.length) || 0} pending</span>
       </div>
       
-      {disputes.length === 0 ? (
+      {!disputes || disputes.length === 0 ? (
         <div className="p-6 text-center text-gray-500">No pending disputes.</div>
       ) : (
         <div className="divide-y divide-[#21262d]">

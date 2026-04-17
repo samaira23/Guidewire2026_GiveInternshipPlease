@@ -18,6 +18,10 @@ urlpatterns = [
     path('premium/', views.premium_view, name='premium'),
     path('premium/calculate/', views.calculate_premium, name='calculate_premium'),
 
+    # Payout
+    path('payout/calculate/', views.calculate_payout, name='calculate_payout'),
+    path('payout/razorpay-order/', views.payout_razorpay_order, name='payout_razorpay_order'),
+
     # Admin
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/disputes/', views.admin_disputes, name='admin_disputes'),

@@ -76,6 +76,18 @@ export const calculatePremium = (rain, overtime) =>
     body: JSON.stringify({ rain, overtime }),
   });
 
+// ── Payouts (Razorpay) ────────────────────────────────────────────────────────
+
+export const calculatePayout = () =>
+  jsonFetch('/api/payout/calculate/', { headers: authHeaders() });
+
+export const createRazorpayOrder = (amount) =>
+  jsonFetch('/api/payout/razorpay-order/', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ amount }),
+  });
+
 // ── Admin ──────────────────────────────────────────────────────────────────────
 
 export const getAdminDashboard = () =>

@@ -1,0 +1,59 @@
+[
+  {
+    "timestamp": "2026-04-17T16:18:18.014890+00:00",
+    "ip": "103.98.62.38",
+    "ip_data": {
+      "city": "Chennai",
+      "district": "",
+      "lat": 13.0895,
+      "lon": 80.2739,
+      "proxy": false,
+      "hosting": false
+    },
+    "browser_coords": {
+      "lat": 12.959144984698272,
+      "lon": 80.17173721344322
+    },
+    "fraud_score": 0,
+    "band": "Auto-reject",
+    "reasons": []
+  },
+  {
+    "timestamp": "2026-04-17T16:19:40.538028+00:00",
+    "ip": "103.98.62.38",
+    "ip_data": {
+      "city": "Chennai",
+      "district": "",
+      "lat": 13.0895,
+      "lon": 80.2739,
+      "proxy": false,
+      "hosting": false
+    },
+    "browser_coords": {
+      "lat": 12.959119697928323,
+      "lon": 80.17173874677943
+    },
+    "fraud_score": 0,
+    "band": "Auto-reject",
+    "reasons": []
+  },
+  {
+    "timestamp": "2026-04-17T17:02:01.745606+00:00",
+    "ip": "103.98.62.38",
+    "ip_data": {
+      "city": "Chennai",
+      "district": "",
+      "lat": 13.0895,
+      "lon": 80.2739,
+      "proxy": false,
+      "hosting": false
+    },
+    "browser_coords": {
+      "lat": 12.959098339783623,
+      "lon": 80.17176661522562
+    },
+    "fraud_score": 0,
+    "band": "Auto-reject",
+    "reasons": []
+  }
+]
