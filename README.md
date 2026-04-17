@@ -225,3 +225,7 @@ Admin Dashboard
 * Claim analytics
 * Risk heatmaps
 
+
+
+##Pitchdeck
+https://drive.google.com/file/d/10dG-1kURBF9u9C6z8Ju5dNVTa7a24-jA/view?usp=sharing
