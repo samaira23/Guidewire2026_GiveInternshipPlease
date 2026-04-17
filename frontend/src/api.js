@@ -1,19 +1,21 @@
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const BASE_URL =
+  import.meta.env.VITE_APP_BACKEND_URL ||
+  "https://giveinternshipplease-backend.onrender.com";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-const getToken = () => localStorage.getItem('token') || '';
+const getToken = () => localStorage.getItem("token") || "";
 
 const authHeaders = () => ({
-  'Content-Type': 'application/json',
+  "Content-Type": "application/json",
   Authorization: `Token ${getToken()}`,
 });
 
 const jsonFetch = async (url, options = {}) => {
   // Added a check to ensure BASE_URL doesn't end with a slash if url starts with one
-  const sanitizedUrl = url.startsWith('/') ? url : `/${url}`;
+  const sanitizedUrl = url.startsWith("/") ? url : `/${url}`;
   const res = await fetch(`${BASE_URL}${sanitizedUrl}`, options);
-  
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     throw err;
@@ -24,42 +26,42 @@ const jsonFetch = async (url, options = {}) => {
 // ── Auth ───────────────────────────────────────────────────────────────────────
 
 export const sendOtp = (phone, role) =>
-  jsonFetch('/api/auth/send-otp/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  jsonFetch("/api/auth/send-otp/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, role }),
   });
 
 export const verifyOtp = (phone, otp) =>
-  jsonFetch('/api/auth/verify-otp/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  jsonFetch("/api/auth/verify-otp/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, otp }),
   });
 
 // ── Worker ─────────────────────────────────────────────────────────────────────
 
 export const getDashboard = () =>
-  jsonFetch('/api/worker/dashboard/', { headers: authHeaders() });
+  jsonFetch("/api/worker/dashboard/", { headers: authHeaders() });
 
 export const getAlerts = () =>
-  jsonFetch('/api/worker/alerts/', { headers: authHeaders() });
+  jsonFetch("/api/worker/alerts/", { headers: authHeaders() });
 
 // ── Claims ─────────────────────────────────────────────────────────────────────
 
 export const getClaims = () =>
-  jsonFetch('/api/claims/', { headers: authHeaders() });
+  jsonFetch("/api/claims/", { headers: authHeaders() });
 
 export const submitClaim = (data) =>
-  jsonFetch('/api/claims/', {
-    method: 'POST',
+  jsonFetch("/api/claims/", {
+    method: "POST",
     headers: authHeaders(),
     body: JSON.stringify(data),
   });
 
 export const updateClaimStatus = (id, status) =>
   jsonFetch(`/api/claims/${id}/`, {
-    method: 'PATCH',
+    method: "PATCH",
     headers: authHeaders(),
     body: JSON.stringify({ status }),
   });
@@ -67,11 +69,11 @@ export const updateClaimStatus = (id, status) =>
 // ── Premium ────────────────────────────────────────────────────────────────────
 
 export const getPremium = () =>
-  jsonFetch('/api/premium/', { headers: authHeaders() });
+  jsonFetch("/api/premium/", { headers: authHeaders() });
 
 export const calculatePremium = (rain, overtime) =>
-  jsonFetch('/api/premium/calculate/', {
-    method: 'POST',
+  jsonFetch("/api/premium/calculate/", {
+    method: "POST",
     headers: authHeaders(),
     body: JSON.stringify({ rain, overtime }),
   });
@@ -79,11 +81,11 @@ export const calculatePremium = (rain, overtime) =>
 // ── Payouts (Razorpay) ────────────────────────────────────────────────────────
 
 export const calculatePayout = () =>
-  jsonFetch('/api/payout/calculate/', { headers: authHeaders() });
+  jsonFetch("/api/payout/calculate/", { headers: authHeaders() });
 
 export const createRazorpayOrder = (amount) =>
-  jsonFetch('/api/payout/razorpay-order/', {
-    method: 'POST',
+  jsonFetch("/api/payout/razorpay-order/", {
+    method: "POST",
     headers: authHeaders(),
     body: JSON.stringify({ amount }),
   });
@@ -91,4 +93,4 @@ export const createRazorpayOrder = (amount) =>
 // ── Admin ──────────────────────────────────────────────────────────────────────
 
 export const getAdminDashboard = () =>
-  jsonFetch('/api/admin/dashboard/', { headers: authHeaders() });
+  jsonFetch("/api/admin/dashboard/", { headers: authHeaders() });

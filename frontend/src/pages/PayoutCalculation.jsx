@@ -87,7 +87,7 @@ export default function PayoutCalculation() {
               payout_amount: pricing.totalPayout,
             });
 
-            await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/claims/${newClaim.id}/`, {
+            await fetch(`${import.meta.env.VITE_APP_BACKEND_URL || 'http://localhost:8000'}/api/claims/${newClaim.id}/`, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export default function PayoutCalculation() {
       });
 
       // Update to Disputed and pass dispute reason
-      await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/claims/${newClaim.id}/`, {
+      await fetch(`${import.meta.env.VITE_APP_BACKEND_URL || 'http://localhost:8000'}/api/claims/${newClaim.id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
